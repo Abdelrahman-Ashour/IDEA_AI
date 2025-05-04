@@ -4,12 +4,15 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from fpdf import FPDF
+from io import BytesIO
+import os
 
 def send_email(user_email, subject, message):
     try:
-        sender_email = "your_email@example.com"
+        sender_email = os.getenv("SENDER_EMAIL")
         receiver_email = user_email
-        password = "your_email_password"
+        password = os.getenv("EMAIL_PASSWORD")
 
         msg = MIMEMultipart()
         msg['From'] = sender_email
@@ -22,14 +25,12 @@ def send_email(user_email, subject, message):
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, msg.as_string())
-        
+
         st.success("تم إرسال البريد الإلكتروني بنجاح.")
     except Exception as e:
         st.error(f"فشل إرسال البريد الإلكتروني: {str(e)}")
 
 def save_to_pdf(user_data):
-    from fpdf import FPDF
-
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -41,14 +42,16 @@ def save_to_pdf(user_data):
     for key, value in user_data.items():
         pdf.cell(200, 10, txt=f"{key}: {value}", ln=True)
 
-    pdf_output_path = "/tmp/project_idea_report.pdf"
-    pdf.output(pdf_output_path)
+    # Save PDF to a BytesIO object instead of a file path
+    pdf_output = BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
 
-    return pdf_output_path
+    return pdf_output
 
 def show():
     st.title("ابحث عن فكرة مشروع")
-    
+
     user_name = st.text_input("الاسم الكامل:")
     user_email = st.text_input("البريد الإلكتروني:")
     budget = st.number_input("الميزانية المتاحة (جنيه)", min_value=0, step=1000)
@@ -71,10 +74,9 @@ def show():
             send_email(user_email, "فكرة مشروعك", f"نحن نقترح عليك فكرة مشروع برمجي بناءً على مهاراتك: {idea}")
 
             # حفظ التقرير في PDF
-            pdf_path = save_to_pdf(user_data)
-            st.download_button("تحميل التقرير بصيغة PDF", pdf_path, file_name="project_idea_report.pdf")
+            pdf_output = save_to_pdf(user_data)
+            st.download_button("تحميل التقرير بصيغة PDF", pdf_output, file_name="project_idea_report.pdf")
 
             st.success(f"تم اقتراح الفكرة بنجاح! اطلع على التقرير المرفق.")
-
         else:
             st.error("يرجى تعبئة جميع الحقول.")
