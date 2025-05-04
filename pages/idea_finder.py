@@ -5,14 +5,13 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fpdf import FPDF
-from io import BytesIO
-import os
 
+# دالة لإرسال البريد الإلكتروني
 def send_email(user_email, subject, message):
     try:
-        sender_email = os.getenv("SENDER_EMAIL")
+        sender_email = "your_email@example.com"
         receiver_email = user_email
-        password = os.getenv("EMAIL_PASSWORD")
+        password = "your_email_password"
 
         msg = MIMEMultipart()
         msg['From'] = sender_email
@@ -25,11 +24,12 @@ def send_email(user_email, subject, message):
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, msg.as_string())
-
+        
         st.success("تم إرسال البريد الإلكتروني بنجاح.")
     except Exception as e:
         st.error(f"فشل إرسال البريد الإلكتروني: {str(e)}")
 
+# دالة لحفظ البيانات في ملف PDF
 def save_to_pdf(user_data):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -42,16 +42,16 @@ def save_to_pdf(user_data):
     for key, value in user_data.items():
         pdf.cell(200, 10, txt=f"{key}: {value}", ln=True)
 
-    # Save PDF to a BytesIO object instead of a file path
-    pdf_output = BytesIO()
-    pdf.output(pdf_output)
-    pdf_output.seek(0)
+    pdf_output_path = "/tmp/project_idea_report.pdf"
+    pdf.output(pdf_output_path)
 
-    return pdf_output
+    return pdf_output_path
 
-def show():
+# دالة التطبيق (app)
+def app():
     st.title("ابحث عن فكرة مشروع")
-
+    
+    # جمع مدخلات المستخدم
     user_name = st.text_input("الاسم الكامل:")
     user_email = st.text_input("البريد الإلكتروني:")
     budget = st.number_input("الميزانية المتاحة (جنيه)", min_value=0, step=1000)
@@ -60,6 +60,7 @@ def show():
 
     if st.button("اعرض فكرة المشروع"):
         if user_name and user_email and skills and budget and competition:
+            # توليد فكرة المشروع بناءً على المدخلات
             idea = f"مشروع برمجي استنادًا إلى مهاراتك: بناء تطبيق باستخدام الذكاء الاصطناعي لخدمة العملاء."
             user_data = {
                 "الاسم": user_name,
@@ -74,9 +75,10 @@ def show():
             send_email(user_email, "فكرة مشروعك", f"نحن نقترح عليك فكرة مشروع برمجي بناءً على مهاراتك: {idea}")
 
             # حفظ التقرير في PDF
-            pdf_output = save_to_pdf(user_data)
-            st.download_button("تحميل التقرير بصيغة PDF", pdf_output, file_name="project_idea_report.pdf")
+            pdf_path = save_to_pdf(user_data)
+            st.download_button("تحميل التقرير بصيغة PDF", pdf_path, file_name="project_idea_report.pdf")
 
             st.success(f"تم اقتراح الفكرة بنجاح! اطلع على التقرير المرفق.")
+
         else:
             st.error("يرجى تعبئة جميع الحقول.")
