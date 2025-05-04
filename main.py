@@ -1,12 +1,14 @@
 import streamlit as st
-from pages import idea_finder, customer_service, history
+from pages import customer_service
+from pages import history
+from pages import idea_finder
 
 st.set_page_config(page_title="IDEA AI", layout="wide")
 
 pages = {
-    "Idea Finder": idea_finder.app,  # تأكد من أن app موجود في idea_finder.py
     "Customer Service": customer_service.app,
     "History": history.app,
+    "Idea Finder": idea_finder.app,  # تأكد من أن app موجود في idea_finder.py
 }
 
 st.sidebar.title("Navigation")
