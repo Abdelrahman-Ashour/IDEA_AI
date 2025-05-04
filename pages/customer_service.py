@@ -4,7 +4,7 @@ from utils.pdf_generator import save_to_pdf
 from utils.email_sender import send_email
 import openai
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+
 
 def app():
     st.title("Customer Service")
