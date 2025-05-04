@@ -9,9 +9,9 @@ from fpdf import FPDF
 # دالة لإرسال البريد الإلكتروني
 def send_email(user_email, subject, message):
     try:
-        sender_email = "your_email@example.com"
+        sender_email = "alking.ashour14@gmail.com"
         receiver_email = user_email
-        password = "your_email_password"
+        password = "wsmb aamp gxyl mgaj"
 
         msg = MIMEMultipart()
         msg['From'] = sender_email
